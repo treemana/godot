@@ -58,7 +58,7 @@ func (s *UpStream) request() {
 			case dns.TypeA, dns.TypeAAAA:
 				for _, rr := range response.Answer {
 					ip := util.DNSSplitAnswer(rr)
-					if ip == nil || len(ip) == 0 {
+					if len(ip) == 0 {
 						continue
 					}
 

@@ -1,7 +1,6 @@
 package util
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"math"
@@ -14,20 +13,13 @@ import (
 )
 
 const (
-	wimiURLV4       = "https://api.whatismyip.com/wimi.php"
-	wimiURLV6       = "https://apiv6.whatismyip.com/wimi.php"
-	wimiHeaderKey   = "Origin"
-	wimiHeaderValue = "https://www.whatismyip.com"
+	// ipify https://www.ipify.org/
+	ipify4 = "https://api4.ipify.org/"
+	ipify6 = "https://api6.ipify.org/"
 )
 
-type WIMI struct {
-	IP  string `json:"ip"` // string like "0.0.0.0"
-	GEO string `json:"geo"`
-	ISP string `json:"isp"`
-}
-
 var (
-	oobSize int
+	// oobSize int
 
 	pingNetwork = "tcp"
 	pingPorts   = []string{"80", "443"}
@@ -35,43 +27,26 @@ var (
 )
 
 func init() {
-	oobSize = getOOBSize()
+	// oobSize = getOOBSize()
 }
 
-func GetPublicIPV4() (*WIMI, error) { return getPublicIP(false) }
-func GetPublicIPV6() (*WIMI, error) { return getPublicIP(true) }
-func getPublicIP(v6 bool) (*WIMI, error) {
+func GetPublicIPV4() (net.IP, error) { return getPublicIP(ipify4) }
+func GetPublicIPV6() (net.IP, error) { return getPublicIP(ipify6) }
+func getPublicIP(url string) (net.IP, error) {
 
-	var url string
-	if v6 {
-		url = wimiURLV6
-	} else {
-		url = wimiURLV4
-	}
-
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add(wimiHeaderKey, wimiHeaderValue)
 
-	var res *http.Response
-	if res, err = http.DefaultClient.Do(req); err != nil {
-		return nil, err
-	}
-	defer func() { _ = res.Body.Close() }()
+	defer func() { _ = resp.Body.Close() }()
 
 	var raw []byte
-	if raw, err = io.ReadAll(res.Body); err != nil {
+	if raw, err = io.ReadAll(resp.Body); err != nil {
 		return nil, err
 	}
 
-	var wimi WIMI
-	if err = json.Unmarshal(raw, &wimi); err != nil {
-		return nil, err
-	}
-
-	return &wimi, nil
+	return net.ParseIP(string(raw)), nil
 }
 
 func Read(c *net.UDPConn, buf []byte) (n int, remoteAddr *net.UDPAddr, err error) {
@@ -107,15 +82,15 @@ func SetControlMessage(conn *net.UDPConn) error {
 }
 
 // getOOBSize returns maximum size of the received OOB data.
-func getOOBSize() (oobSize int) {
-	l4, l6 := len(ipv4.NewControlMessage(ipv4Flags)), len(ipv6.NewControlMessage(ipv6Flags))
+// func getOOBSize() (oobSize int) {
+// 	l4, l6 := len(ipv4.NewControlMessage(ipv4Flags)), len(ipv6.NewControlMessage(ipv6Flags))
 
-	if l4 >= l6 {
-		return l4
-	}
+// 	if l4 >= l6 {
+// 		return l4
+// 	}
 
-	return l6
-}
+// 	return l6
+// }
 
 // GetOOBWithSrc makes the OOB data with a specified source IP.
 func GetOOBWithSrc(ip net.IP) []byte {

@@ -18,7 +18,7 @@ func (s *UpStream) response() {
 		log.Sugar.Infof("sn=%d, id=%d, len(dt.Answers)=%d", dt.SN, dt.Request.MsgHdr.Id, len(dt.Answers))
 
 		if len(dt.Answers) == 0 {
-			dt.Response = util.DNSNewFailure(dt.Request)
+			dt.Response = util.DNSNewNXDomain(dt.Request)
 			s.doc <- dt
 			continue
 		}
@@ -43,7 +43,7 @@ func (s *UpStream) response() {
 		}
 
 		if latencies[fastest] == math.MaxUint32 {
-			dt.Response = util.DNSNewFailure(dt.Request)
+			dt.Response = util.DNSNewNXDomain(dt.Request)
 			s.doc <- dt
 			continue
 		}

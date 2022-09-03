@@ -25,7 +25,7 @@ const (
 
 func DNSNewSubnetFromIP(ip net.IP, maskBits uint8) *dns.EDNS0_SUBNET {
 
-	if ip == nil || len(ip) == 0 {
+	if len(ip) == 0 {
 		return nil
 	}
 	// A Stub Resolver MUST set SCOPE PREFIX-LENGTH to 0. See RFC 7871 Section 6.
@@ -61,13 +61,13 @@ func DNSNewSubnetFromIP(ip net.IP, maskBits uint8) *dns.EDNS0_SUBNET {
 	return subnet
 }
 
-func DNSNewFailure(source *dns.Msg) *dns.Msg {
+func DNSNewNXDomain(source *dns.Msg) *dns.Msg {
 	if source == nil {
 		return nil
 	}
 
 	var target = new(dns.Msg)
-	target.SetRcode(source, dns.RcodeServerFailure)
+	target.SetRcode(source, dns.RcodeNameError)
 	target.RecursionAvailable = true
 
 	return target
@@ -158,7 +158,6 @@ func DNSSubnetRemove(m *dns.Msg) {
 	var options = make([]dns.EDNS0, 0, len(opt.Option)-1)
 	options = append(opt.Option[:index], opt.Option[index+1:]...)
 	opt.Option = options
-	return
 }
 
 func DNSSubnetExist(m *dns.Msg) bool {

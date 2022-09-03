@@ -40,7 +40,7 @@ func TestPing(t *testing.T) {
 }
 
 func TestGetPublicIP(t *testing.T) {
-	got, err := getPublicIP(false)
+	got, err := getPublicIP(ipify4)
 	if err != nil {
 		t.Errorf("getPublicIP() error = %v", err)
 		return

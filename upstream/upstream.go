@@ -58,12 +58,11 @@ func New(rawURLGroups [][]string, subnets []*dns.EDNS0_SUBNET, reqChan, respChan
 
 		log.Sugar.Infof("upstream subnet %s", subnet.String())
 
-		if v4 := subnet.Address.To4(); v4 != nil {
-			us.subnetV4 = subnet
+		if v6 := subnet.Address.To16(); v6 != nil {
+			us.subnetV6 = subnet
 			continue
 		}
-
-		us.subnetV6 = subnet
+		us.subnetV4 = subnet
 	}
 
 	return us, nil

@@ -157,21 +157,22 @@ func getSubnets() ([]*dns.EDNS0_SUBNET, error) {
 }
 
 func getSubnet(ipRAW string, v6 bool, mask uint8) (*dns.EDNS0_SUBNET, error) {
+
+	var ip net.IP
 	if len(ipRAW) == 0 {
-		var wimi *util.WIMI
 		var err error
 		if v6 {
-			wimi, err = util.GetPublicIPV6()
+			ip, err = util.GetPublicIPV6()
 		} else {
-			wimi, err = util.GetPublicIPV4()
+			ip, err = util.GetPublicIPV4()
 		}
 		if err != nil {
 			return nil, err
 		}
-		ipRAW = wimi.IP
+	} else {
+		ip = net.ParseIP(ipRAW)
 	}
 
-	ip := net.ParseIP(ipRAW)
 	if ip == nil {
 		return nil, nil
 	}
