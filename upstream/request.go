@@ -34,7 +34,7 @@ func (s *UpStream) request() {
 
 		for index := range s.resolvers {
 			go func(i int) {
-				resolversChan <- resolve(context.TODO(), s.resolvers[i], req)
+				resolversChan <- s.resolvers[i].Resolve(context.TODO(), req)
 			}(index)
 		}
 

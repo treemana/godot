@@ -16,8 +16,10 @@
 
 # IDE or Editor
 .vscode
+.idea
 
 # godot binary
 godot
+
 # godot.log
 godot.log

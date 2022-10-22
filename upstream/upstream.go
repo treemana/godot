@@ -2,14 +2,13 @@ package upstream
 
 import (
 	"errors"
-	"net/url"
 	"sync"
 
 	"github.com/miekg/dns"
 
 	"github.com/treemana/godot/log"
 	"github.com/treemana/godot/model"
-	"github.com/treemana/godot/tls"
+	"github.com/treemana/godot/resolver"
 )
 
 const (
@@ -19,7 +18,7 @@ const (
 type UpStream struct {
 	subnetV4  *dns.EDNS0_SUBNET
 	subnetV6  *dns.EDNS0_SUBNET
-	resolvers []url.URL
+	resolvers []*resolver.Resolver
 
 	// dt in/out channel
 	dic chan *model.DT
@@ -37,7 +36,7 @@ func New(rawURLGroups [][]string, subnets []*dns.EDNS0_SUBNET, reqChan, respChan
 	}
 
 	us := &UpStream{
-		resolvers: tls.GetFastURLs(rawURLGroups),
+		resolvers: resolver.GetFastFromURLGroups(rawURLGroups),
 		dic:       reqChan,
 		doc:       respChan,
 		respNum:   2,
@@ -45,10 +44,6 @@ func New(rawURLGroups [][]string, subnets []*dns.EDNS0_SUBNET, reqChan, respChan
 
 	if len(us.resolvers) == 0 {
 		return nil, errors.New("empty UpStreams")
-	}
-
-	for i, resolver := range us.resolvers {
-		log.Sugar.Infof("upstream resolver %d %s", i, resolver.Host)
 	}
 
 	for _, subnet := range subnets {
