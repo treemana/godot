@@ -4,6 +4,7 @@ import "testing"
 
 func TestInit(t *testing.T) {
 	zf := Config{
+		STDOUT: true,
 		// LogFile:    "zap.log", // 不传就不写文件
 		Level:      0,
 		MaxAge:     1,
